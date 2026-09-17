@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Socket.io Notification Test</title>
+  <script src="/socket.io/socket.io.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+
+    #notifications {
+      margin-top: 20px;
+      border: 1px solid #ccc;
+      padding: 10px;
+      max-width: 500px;
+      background: #f9f9f9;
+    }
+
+    .notification {
+      padding: 8px;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .notification:last-child {
+      border-bottom: none;
+    }
+  </style>
+</head>
+
+<body>
+  <h2>Chat</h2>
+  <div id="chatMessages"></div>
+  <input id="msgInput" placeholder="Type message" />
+  <button id="sendBtn">Send</button>
+
+  <script>
+    // const isUser = prompt("are you user of ");
+
+    const socket = io("http://localhost:5000");
+    const userId = "68d66c3b5d32991ab22f0b47"; // Replace with actual logged-in user ID
+    const chatId = "68dd129b69b47899c049f72c"; // Replace with actual chat ID
+    const receiverId = "68dc0bfc7135dece40a89e29"; // Admin or user
+
+    socket.emit("join", userId);
+
+    socket.on("newMessage", (msg) => {
+      const div = document.createElement("div");
+      div.textContent = msg.content;
+      document.getElementById("chatMessages").appendChild(div);
+    });
+
+    document.getElementById("sendBtn").onclick = () => {
+      const content = document.getElementById("msgInput").value;
+      socket.emit("sendMessage", { chatId, senderId: userId, receiverId, content });
+      document.getElementById("msgInput").value = "";
+    };
+  </script>
+</body>
+
+</html>

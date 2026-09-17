@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Google Auth Demo</title>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    #user-info { margin-top: 20px; border: 1px solid #ddd; padding: 15px; width: 350px; display: none; }
+    #user-info img { border-radius: 50%; width: 60px; height: 60px; margin-right: 10px; vertical-align: middle; }
+  </style>
+</head>
+<body>
+  <h2>Login with Google</h2>
+
+  <!-- Google Sign-In Button -->
+  <div id="g_id_onload"
+       data-client_id="120018540271-rgl7vclr60cjpcscbgv6r68di9l227ed.apps.googleusercontent.com"
+       data-context="signin"
+       data-ux_mode="popup"
+       data-callback="handleCredentialResponse">
+  </div>
+
+  <div class="g_id_signin" 
+       data-type="standard"
+       data-shape="rectangular"
+       data-theme="outline"
+       data-text="signin_with"
+       data-size="large">
+  </div>
+
+  <!-- User Info Display -->
+  <div id="user-info">
+    <h3>User Info</h3>
+    <p><img id="profile_image" src="" alt="Profile"> <span id="user_name"></span></p>
+    <p>Email: <span id="user_email"></span></p>
+    <p>Role: <span id="user_role"></span></p>
+    <p>JWT Token: <span id="user_token" style="word-break: break-word;"></span></p>
+  </div>
+
+  <script>
+    async function handleCredentialResponse(response) {
+      const access_token = response.credential;
+      console.log("Google ID Token:", access_token);
+
+      try {
+        const res = await fetch("http://localhost:5000/api/v1/auth/google", { // change URL to your backend
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ access_token })
+        });
+
+        const data = await res.json();
+        console.log("Backend Response:", data);
+
+        if (data.success) {
+          // Display user info
+        //   document.getElementById("profile_image").innerText = data.user.profile_image || "";
+          document.getElementById("user_name").innerText = data.user.name;
+          document.getElementById("user_email").innerText = data.user.email;
+          document.getElementById("user_role").innerText = data.user.role;
+          document.getElementById("user_token").innerText = data.token;
+          document.getElementById("user-info").style.display = "block";
+        } else {
+          alert("Login failed: " + data.message);
+        }
+      } catch (err) {
+        console.error("Error:", err);
+      }
+    }
+  </script>
+</body>
+</html>
